@@ -5,10 +5,7 @@
 #include <ESPmDNS.h>
 #include <Update.h> 
 #include <WiFi.h>
-#include <FastLED.h>
 #include "ELM327_Emulator.h"
-
-extern CRGB leds[NUM_LEDS];
 
 static IPAddress broadcastAddr(255,255,255,255);
 
@@ -27,11 +24,7 @@ void WiFiManager::setup()
 
         WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
         {
-           if (SysSettings.fancyLED)
-           {
-               leds[0] = CRGB::Red;
-               FastLED.show();
-           }
+
            Serial.print("WiFi lost connection. Reason: ");
            Serial.println(info.wifi_sta_disconnected.reason);
            SysSettings.isWifiConnected = false;
@@ -49,11 +42,7 @@ void WiFiManager::setup()
         WiFi.mode(WIFI_AP);
         WiFi.setSleep(true);
         WiFi.softAP((const char *)settings.SSID, (const char *)settings.WPA2Key);
-        if (SysSettings.fancyLED)
-        {
-            leds[0] = CRGB::Green;
-            FastLED.show();
-        }
+
     }
 }
 
@@ -76,11 +65,7 @@ void WiFiManager::loop()
                 Serial.print("RSSI: ");
                 Serial.println(WiFi.RSSI());
                 needServerInit = true;
-                if (SysSettings.fancyLED)
-                {
-                    leds[0] = CRGB::Green;
-                    FastLED.show();
-                }
+
             }
             if (settings.wifiMode == 2)
             {
@@ -110,11 +95,7 @@ void WiFiManager::loop()
                 ArduinoOTA
                    .onStart([]() {
                       String type;
-                      if (SysSettings.fancyLED)
-                      {
-                          leds[0] = CRGB::Purple;
-                          FastLED.show();
-                      }
+
                       if (ArduinoOTA.getCommand() == U_FLASH)
                          type = "sketch";
                       else // U_SPIFFS
@@ -159,11 +140,7 @@ void WiFiManager::loop()
                                 Serial.print("New client: ");
                                 Serial.print(i); Serial.print(' ');
                                 Serial.println(SysSettings.clientNodes[i].remoteIP());
-                                if (SysSettings.fancyLED)
-                                {
-                                    leds[0] = CRGB::Blue;
-                                    FastLED.show();
-                                }
+
                             }
                         }
                     }
@@ -219,11 +196,7 @@ void WiFiManager::loop()
                         if (SysSettings.clientNodes[i]) 
                         {
                             SysSettings.clientNodes[i].stop();
-                            if (SysSettings.fancyLED)
-                            {
-                                leds[0] = CRGB::Green;
-                                FastLED.show();
-                            }
+
                         }
                     }
 
@@ -259,11 +232,7 @@ void WiFiManager::loop()
                     Serial.println("WiFi disconnected. Bummer!");
                     SysSettings.isWifiConnected = false;
                     SysSettings.isWifiActive = false;
-                    if (SysSettings.fancyLED)
-                    {  
-                        leds[0] = CRGB::Red;
-                        FastLED.show();
-                    }
+
                 }
             }
         }

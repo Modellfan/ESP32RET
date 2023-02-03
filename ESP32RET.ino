@@ -29,7 +29,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <esp32_can.h>
 #include <SPI.h>
 #include <Preferences.h>
-#include <FastLED.h>
 #include "ELM327_Emulator.h"
 #include "SerialConsole.h"
 #include "wifi_manager.h"
@@ -64,7 +63,6 @@ LAWICELHandler lawicel;
 
 SerialConsole console;
 
-CRGB leds[NUM_LEDS];
 
 //initializes all the system EEPROM values. Chances are this should be broken out a bit but
 //there is only one checksum check for all of them so it's simple to do it all here.
@@ -77,17 +75,17 @@ void loadSettings()
     nvPrefs.begin(PREF_NAME, false);
 
     settings.CAN0Speed = nvPrefs.getUInt("can0speed", 500000);
-    settings.CAN0_Enabled = nvPrefs.getBool("can0_en", true);
+    settings.CAN0_Enabled = nvPrefs.getBool("can0_en", false);
     settings.CAN0ListenOnly = nvPrefs.getBool("can0-listenonly", false);
     settings.useBinarySerialComm = nvPrefs.getBool("binarycomm", false);
     settings.logLevel = nvPrefs.getUChar("loglevel", 1); //info
-    settings.wifiMode = nvPrefs.getUChar("wifiMode", 2); //Wifi defaults to creating an AP
+    settings.wifiMode = nvPrefs.getUChar("wifiMode", 0); //Wifi defaults to creating an AP
     settings.enableBT = nvPrefs.getBool("enable-bt", false);
     settings.enableLawicel = nvPrefs.getBool("enableLawicel", true);
     settings.systemType = nvPrefs.getUChar("systype", (espChipRevision > 2) ? 0 : 1); //0 = A0, 1 = EVTV ESP32
     settings.CAN1Speed = nvPrefs.getUInt("can1speed", 500000);
     settings.CAN1ListenOnly = nvPrefs.getBool("can1-listenonly", false);
-    settings.CAN1_Enabled = nvPrefs.getBool("can1_en", (settings.systemType == 1) ? true : false);
+    settings.CAN1_Enabled = nvPrefs.getBool("can1_en", true);
 
     if (settings.systemType == 0)
     {
@@ -112,10 +110,6 @@ void loadSettings()
         pinMode(13, OUTPUT);
         digitalWrite(13, LOW);
         delay(100);
-        FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
-        FastLED.setBrightness(  BRIGHTNESS );
-        leds[0] = CRGB::Red;
-        FastLED.show();
         pinMode(21, OUTPUT);
         digitalWrite(21, LOW);
     }
@@ -172,8 +166,8 @@ void setup()
 
     espChipRevision = ESP.getChipRevision();
 
-    Serial.begin(1000000); //for production
-    //Serial.begin(115200); //for testing
+    //Serial.begin(1000000); //for production
+    Serial.begin(115200); //for testing
 
     SysSettings.isWifiConnected = false;
 
@@ -183,17 +177,12 @@ void setup()
     //try to debug that. But, no dice yet. :(
     //heap_caps_print_heap_info(MALLOC_CAP_8BIT);
 
-    if (settings.enableBT) 
-    {
-        Serial.println("Starting bluetooth");
-        elmEmulator.setup();
-        if (SysSettings.fancyLED && (settings.wifiMode == 0) )
-        {
-            leds[0] = CRGB::Green;
-            FastLED.show();
-        }
-    }
-    /*else*/ wifiManager.setup();
+//    if (settings.enableBT) 
+//    {
+//        Serial.println("Starting bluetooth");
+//        elmEmulator.setup();
+//    }
+//    /*else*/ wifiManager.setup();
 
     //heap_caps_print_heap_info(MALLOC_CAP_8BIT);
 
@@ -254,7 +243,7 @@ void loop()
     //}
 
     canManager.loop();
-    /*if (!settings.enableBT)*/ wifiManager.loop();
+    ///*if (!settings.enableBT)*/ wifiManager.loop();
 
     size_t wifiLength = wifiGVRET.numAvailableBytes();
     size_t serialLength = serialGVRET.numAvailableBytes();
@@ -283,5 +272,5 @@ void loop()
         serialGVRET.processIncomingByte(in_byte);
     }
 
-    elmEmulator.loop();
+    //elmEmulator.loop();
 }
