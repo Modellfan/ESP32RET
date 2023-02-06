@@ -30,11 +30,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <SPI.h>
 #include <Preferences.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 //#include "ELM327_Emulator.h"
 //#include "SerialConsole.h"
 //#include "wifi_manager.h"
 //#include "gvret_comm.h"
 =======
+=======
+>>>>>>> parent of 6ee0405 (fastled removed)
 #include <FastLED.h>
 #include "ELM327_Emulator.h"
 #include "SerialConsole.h"
