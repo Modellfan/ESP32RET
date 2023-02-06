@@ -2,10 +2,10 @@
 #include "can_manager.h"
 #include "esp32_can.h"
 #include "config.h"
-#include "SerialConsole.h"
-#include "gvret_comm.h"
-#include "lawicel.h"
-#include "ELM327_Emulator.h"
+//#include "SerialConsole.h"
+//#include "gvret_comm.h"
+//#include "lawicel.h"
+//#include "ELM327_Emulator.h"
 
 CANManager::CANManager()
 {
@@ -89,23 +89,23 @@ void CANManager::sendFrame(CAN_COMMON *bus, CAN_FRAME &frame)
 
 void CANManager::displayFrame(CAN_FRAME &frame, int whichBus)
 {
-    if (settings.enableLawicel && SysSettings.lawicelMode) 
-    {
-        lawicel.sendFrameToBuffer(frame, whichBus);
-    } 
-    else 
-    {
-        if (SysSettings.isWifiActive) wifiGVRET.sendFrameToBuffer(frame, whichBus);
-        else serialGVRET.sendFrameToBuffer(frame, whichBus);
-    }
+//    if (settings.enableLawicel && SysSettings.lawicelMode) 
+//    {
+//        lawicel.sendFrameToBuffer(frame, whichBus);
+//    } 
+//    else 
+//    {
+//        if (SysSettings.isWifiActive) wifiGVRET.sendFrameToBuffer(frame, whichBus);
+//        else serialGVRET.sendFrameToBuffer(frame, whichBus);
+//    }
 }
 
 void CANManager::loop()
 {
     CAN_FRAME incoming;
-    size_t wifiLength = wifiGVRET.numAvailableBytes();
-    size_t serialLength = serialGVRET.numAvailableBytes();
-    size_t maxLength = (wifiLength>serialLength)?wifiLength:serialLength;
+//    size_t wifiLength = wifiGVRET.numAvailableBytes();
+//    size_t serialLength = serialGVRET.numAvailableBytes();
+//    size_t maxLength = (wifiLength>serialLength)?wifiLength:serialLength;
 
     if (millis() > (busLoadTimer + 250)) {
         busLoadTimer = millis();
@@ -121,30 +121,30 @@ void CANManager::loop()
         }
     }
 
-    while (CAN0.available() > 0 && (maxLength < (WIFI_BUFF_SIZE - 80)))
+    while (CAN0.available() > 0 )
     {
         CAN0.read(incoming);
         addBits(0, incoming);
-        toggleRXLED();
+     
         displayFrame(incoming, 0);
-        if (incoming.id > 0x7DF && incoming.id < 0x7F0) elmEmulator.processCANReply(incoming);
-        wifiLength = wifiGVRET.numAvailableBytes();
-        serialLength = serialGVRET.numAvailableBytes();
-        maxLength = (wifiLength > serialLength) ? wifiLength:serialLength;
+//        if (incoming.id > 0x7DF && incoming.id < 0x7F0) elmEmulator.processCANReply(incoming);
+//        wifiLength = wifiGVRET.numAvailableBytes();
+//        serialLength = serialGVRET.numAvailableBytes();
+//        maxLength = (wifiLength > serialLength) ? wifiLength:serialLength;
     }
 
     if (settings.systemType != 0)
     {
-        while (CAN1.available() > 0 && (maxLength < (WIFI_BUFF_SIZE - 80)))
+        while (CAN1.available() > 0 )
         {
             CAN1.read(incoming);
             addBits(1, incoming);
-            toggleRXLED();
+    
             displayFrame(incoming, 1);
-            if (incoming.id > 0x7DF && incoming.id < 0x7F0) elmEmulator.processCANReply(incoming);
-            wifiLength = wifiGVRET.numAvailableBytes();
-            serialLength = serialGVRET.numAvailableBytes();
-            maxLength = (wifiLength > serialLength) ? wifiLength:serialLength;
+//            if (incoming.id > 0x7DF && incoming.id < 0x7F0) elmEmulator.processCANReply(incoming);
+//            wifiLength = wifiGVRET.numAvailableBytes();
+//            serialLength = serialGVRET.numAvailableBytes();
+//            maxLength = (wifiLength > serialLength) ? wifiLength:serialLength;
         }
     }
 }

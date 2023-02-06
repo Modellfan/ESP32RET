@@ -126,21 +126,21 @@ struct SystemSettings {
     boolean isWifiActive;
 };
 
-class GVRET_Comm_Handler;
+//class GVRET_Comm_Handler;
 class SerialConsole;
 class CANManager;
-class LAWICELHandler;
-class ELM327Emu;
+//class LAWICELHandler;
+//class ELM327Emu;
 
 extern EEPROMSettings settings;
 extern SystemSettings SysSettings;
 extern Preferences nvPrefs;
-extern GVRET_Comm_Handler serialGVRET;
-extern GVRET_Comm_Handler wifiGVRET;
+//extern GVRET_Comm_Handler serialGVRET;
+//extern GVRET_Comm_Handler wifiGVRET;
 extern SerialConsole console;
 extern CANManager canManager;
-extern LAWICELHandler lawicel;
-extern ELM327Emu elmEmulator;
+//extern LAWICELHandler lawicel;
+//extern ELM327Emu elmEmulator;
 extern char deviceName[20];
 extern char otaHost[40];
 extern char otaFilename[100];

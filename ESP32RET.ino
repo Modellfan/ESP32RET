@@ -29,12 +29,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <esp32_can.h>
 #include <SPI.h>
 #include <Preferences.h>
-#include "ELM327_Emulator.h"
-#include "SerialConsole.h"
-#include "wifi_manager.h"
-#include "gvret_comm.h"
+//#include "ELM327_Emulator.h"
+//#include "SerialConsole.h"
+//#include "wifi_manager.h"
+//#include "gvret_comm.h"
 #include "can_manager.h"
-#include "lawicel.h"
+//#include "lawicel.h"
 
 byte i = 0;
 
@@ -52,30 +52,30 @@ char otaFilename[100];
 
 uint8_t espChipRevision;
 
-ELM327Emu elmEmulator;
-
-WiFiManager wifiManager;
-
-GVRET_Comm_Handler serialGVRET; //gvret protocol over the serial to USB connection
-GVRET_Comm_Handler wifiGVRET; //GVRET over the wifi telnet port
+//ELM327Emu elmEmulator;
+//
+//WiFiManager wifiManager;
+//
+//GVRET_Comm_Handler serialGVRET; //gvret protocol over the serial to USB connection
+//GVRET_Comm_Handler wifiGVRET; //GVRET over the wifi telnet port
 CANManager canManager; //keeps track of bus load and abstracts away some details of how things are done
-LAWICELHandler lawicel;
+//LAWICELHandler lawicel;
 
-SerialConsole console;
+//SerialConsole console;
 
 
 //initializes all the system EEPROM values. Chances are this should be broken out a bit but
 //there is only one checksum check for all of them so it's simple to do it all here.
 void loadSettings()
 {
-    Logger::console("Loading settings....");
+    //Logger::console("Loading settings....");
 
     //Logger::console("%i\n", espChipRevision);
 
     nvPrefs.begin(PREF_NAME, false);
 
     settings.CAN0Speed = nvPrefs.getUInt("can0speed", 500000);
-    settings.CAN0_Enabled = nvPrefs.getBool("can0_en", false);
+    settings.CAN0_Enabled = nvPrefs.getBool("can0_en", true);
     settings.CAN0ListenOnly = nvPrefs.getBool("can0-listenonly", false);
     settings.useBinarySerialComm = nvPrefs.getBool("binarycomm", false);
     settings.logLevel = nvPrefs.getUChar("loglevel", 1); //info
@@ -89,7 +89,7 @@ void loadSettings()
 
     if (settings.systemType == 0)
     {
-        Logger::console("Running on Macchina A0");
+        //Logger::console("Running on Macchina A0");
         SysSettings.LED_CANTX = 255;
         SysSettings.LED_CANRX = 255;
         SysSettings.LED_LOGGING = 255;
@@ -116,7 +116,7 @@ void loadSettings()
 
     if (settings.systemType == 1)
     {
-        Logger::console("Running on EVTV ESP32 Board");
+        //Logger::console("Running on EVTV ESP32 Board");
         SysSettings.LED_CANTX = 255;
         SysSettings.LED_CANRX = 255;
         SysSettings.LED_LOGGING = 255;
@@ -154,7 +154,7 @@ void loadSettings()
 
     nvPrefs.end();
 
-    Logger::setLoglevel((Logger::LogLevel)settings.logLevel);
+    //Logger::setLoglevel((Logger::LogLevel)settings.logLevel);
 
     for (int rx = 0; rx < NUM_BUSES; rx++) SysSettings.lawicelBusReception[rx] = true; //default to showing messages on RX 
     //set pin mode for all LEDS
@@ -239,38 +239,38 @@ void loop()
 
     /*if (Serial)*/ isConnected = true;
 
-    if (SysSettings.lawicelPollCounter > 0) SysSettings.lawicelPollCounter--;
+    //if (SysSettings.lawicelPollCounter > 0) SysSettings.lawicelPollCounter--;
     //}
 
     canManager.loop();
     ///*if (!settings.enableBT)*/ wifiManager.loop();
 
-    size_t wifiLength = wifiGVRET.numAvailableBytes();
-    size_t serialLength = serialGVRET.numAvailableBytes();
-    size_t maxLength = (wifiLength>serialLength) ? wifiLength : serialLength;
+    //size_t wifiLength = wifiGVRET.numAvailableBytes();
+//    size_t serialLength = serialGVRET.numAvailableBytes();
+//    size_t maxLength = (wifiLength>serialLength) ? wifiLength : serialLength;
 
-    //If the max time has passed or the buffer is almost filled then send buffered data out
-    if ((micros() - lastFlushMicros > SER_BUFF_FLUSH_INTERVAL) || (maxLength > (WIFI_BUFF_SIZE - 40)) ) 
-    {
-        lastFlushMicros = micros();
-        if (serialLength > 0) 
-        {
-            Serial.write(serialGVRET.getBufferedBytes(), serialLength);
-            serialGVRET.clearBufferedBytes();
-        }
-        if (wifiLength > 0)
-        {
-            wifiManager.sendBufferedData();
-        }
-    }
+//    //If the max time has passed or the buffer is almost filled then send buffered data out
+//    if ((micros() - lastFlushMicros > SER_BUFF_FLUSH_INTERVAL) || (maxLength > (WIFI_BUFF_SIZE - 40)) ) 
+//    {
+//        lastFlushMicros = micros();
+//        if (serialLength > 0) 
+//        {
+//            Serial.write(serialGVRET.getBufferedBytes(), serialLength);
+//            serialGVRET.clearBufferedBytes();
+//        }
+//        if (wifiLength > 0)
+//        {
+//            wifiManager.sendBufferedData();
+//        }
+//    }
 
-    serialCnt = 0;
-    while ( (Serial.available() > 0) && serialCnt < 128 ) 
-    {
-        serialCnt++;
-        in_byte = Serial.read();
-        serialGVRET.processIncomingByte(in_byte);
-    }
+//    serialCnt = 0;
+//    while ( (Serial.available() > 0) && serialCnt < 128 ) 
+//    {
+//        serialCnt++;
+//        in_byte = Serial.read();
+//        serialGVRET.processIncomingByte(in_byte);
+//    }
 
     //elmEmulator.loop();
 }
